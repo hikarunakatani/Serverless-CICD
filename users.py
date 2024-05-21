@@ -1,7 +1,9 @@
+import os
 import json
 import boto3
 
-def create_user(event, context):
+
+def handler(event, context):
     """
     A Lambda function that creates a new user in a DynamoDB table.
     """
