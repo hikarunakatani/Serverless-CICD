@@ -1,0 +1,37 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+      - name: Run unit tests
+        run: |
+          pytest tests/
+      - name: Run integration tests with LocalStack
+        run: |
+          # Start LocalStack in the background
+          docker-compose up -d &
+          # Wait for LocalStack to start
+          sleep 30
+          # Use LocalStack endpoint for integration tests
+          export DYNAMODB_ENDPOINT=http://localhost:4569
+          pytest integration_tests/
+          # Stop LocalStack
+          docker-compose down
+      - name: Deploy to AWS (if all tests pass)
+        if: ${{ success() }}
+        uses: serverless/github-action@v2.3.0
+        with:
+          args: deploy

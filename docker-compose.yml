@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566-4584:4566-4584"
+      - "8080:8080"
+    environment:
+      SERVICES: dynamodb
+      DEFAULT_REGION: us-east-1 # Replace with your desired region
+    volumes:
+      - ./data:/tmp/localstack/data
